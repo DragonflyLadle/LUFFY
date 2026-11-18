@@ -1,6 +1,9 @@
 name: Sync README TODO list
 
 on:
+  push:
+    branches:
+      - dev
   workflow_dispatch:
 
 permissions:
