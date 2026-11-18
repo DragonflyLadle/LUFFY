@@ -1,0 +1,38 @@
+name: Remove temporary helper TODO entries
+
+on:
+  push:
+    branches:
+      - dev
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup-todo-entries:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout dev
+        uses: actions/checkout@v4
+        with:
+          ref: dev
+          fetch-depth: 1
+
+      - name: Remove TODO entries from temporary .github helper files
+        run: sed -i '/^\- \[ \] \*\*\.github\//d' README.md
+
+      - name: Remove this temporary cleanup workflow
+        run: rm -f .github/workflows/remove-helper-todo-entries.yml
+
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No temporary TODO entries found."
+          else
+            git commit -m "docs: remove temporary helper entries from TODO list"
+            git push origin HEAD:dev
+          fi
